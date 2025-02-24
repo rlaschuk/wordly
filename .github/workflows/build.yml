@@ -57,11 +57,18 @@ jobs:
         with:
           path: artifacts
 
-      - name: Create Tag Automatically
+      # - name: Create Tag Automatically
+      #   run: |
+      #     # Generate version tag based on run number
+      #     VERSION=v1.${{ github.run_number }}  # Example: v1.1, v1.2, etc.
+      #     git tag $VERSION  # Tag the current commit with the generated version
+      #     git push origin $VERSION  # Push the tag to GitHub
+
+      - name: Tag release manually
         run: |
-          # Generate version tag based on run number
-          VERSION=v1.${{ github.run_number }}  # Example: v1.1, v1.2, etc.
-          git tag $VERSION  # Tag the current commit with the generated version
+          VERSION=${{ github.event.inputs.tag_version }}  # Using manual version input
+          echo "Tagging release with version: $VERSION"
+          git tag $VERSION  # Create the tag with the manually specified version
           git push origin $VERSION  # Push the tag to GitHub
 
       - name: Create GitHub Release
@@ -70,6 +77,8 @@ jobs:
           files: artifacts/**/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+
 
   # cache:
   #   name: Cache Go Build and Dependencies
