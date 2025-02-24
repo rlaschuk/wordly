@@ -46,8 +46,8 @@ jobs:
   release:
     name: Create Release
     needs: build
-    if: github.event_name == 'release'
     runs-on: ubuntu-latest
+    if: github.event_name == 'release' || github.event_name == 'workflow_dispatch'
 
     steps:
       - name: Download all artifacts
@@ -55,7 +55,16 @@ jobs:
         with:
           path: artifacts
 
-      - name: Upload binaries to release
+      - name: Create Tag Automatically
+        run: |
+          # Generate version tag based on run number
+          VERSION=v1.${{ github.run_number }}  # Example: v1.1, v1.2, etc.
+          git tag $VERSION  # Tag the current commit with the generated version
+          git push origin $VERSION  # Push the tag to GitHub
+
+      - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           files: artifacts/**/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
