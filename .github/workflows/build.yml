@@ -11,7 +11,7 @@ on:
 
 jobs:
   build:
-    name: Build for ${{ matrix.os }}
+    name: ${{ matrix.os }} -> ${{ matrix.goarch }}
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -27,6 +27,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Go
         uses: actions/setup-go@v5
@@ -68,3 +70,17 @@ jobs:
           files: artifacts/**/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # cache:
+  #   name: Cache Go Build and Dependencies
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Cache Go modules and build output
+  #       uses: actions/cache@v3
+  #       with:
+  #         path: |
+  #           ~/.cache/go-build
+  #           ~/go/pkg/mod
+  #         key: ${{ runner.os }}-go-${{ hashFiles('**/*.go') }}-${{ matrix.goarch }}-${{ matrix.goos }}
+  #         restore-keys: |
+  #           ${{ runner.os }}-go-${{ matrix.goarch }}-${{ matrix.goos }}-
